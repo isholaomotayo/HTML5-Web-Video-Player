@@ -12,13 +12,16 @@ window.addEventListener('load', function () {
     soundButton = document.getElementById('sound-button');
     sbarContainer = document.getElementById('sbar-container');
     sbar = document.getElementById('sbar');
+    fullscreenButton = document.getElementById('fullscreen-button');
+    screenButton = document.getElementById('screen-button');
     video.load();
     video.addEventListener('canplay', function () {
         playButton.addEventListener('click', playOrPause, false);
         pbarContainer.addEventListener('click', skip, false);
-        video.addEventListener('click', playOrPause, false);
+        screenButton.addEventListener('click', playOrPause, false);
         soundButton.addEventListener('click', muteOrUnmute, false);
         sbarContainer.addEventListener('click', changeVolume, false);
+        fullscreenButton.addEventListener('click', fullscreen, false);
         updatePlayer();
     }, false);
 
@@ -26,10 +29,12 @@ window.addEventListener('load', function () {
     function  playOrPause(){
         if(video.paused){video.play();
             playButton.src= 'images/pause.png';
-            update = setInterval(updatePlayer, 30)}
+            update = setInterval(updatePlayer, 30);
+            screenButton.parentNode.style.display='none'}
         else{video.pause();
             playButton.src= 'images/play.png';
-            window.clearInterval(update);}
+            window.clearInterval(update);
+            screenButton.parentNode.style.display='block'}
     }
     function updatePlayer() {
         var percentage = (video.currentTime/video.duration)*100;
@@ -37,8 +42,13 @@ window.addEventListener('load', function () {
         timeField.innerHTML = getFormattedTime();
         if(video.ended){
             window.clearInterval(update);
-            playButton.src='images/replay.png'
+            playButton.src='images/replay.png';
+            screenButton.parentNode.style.display='block';
+            screenButton.src='images/replay.png'
 
+        }else if (video.paused){
+            playButton.src = 'images/play.png';
+            screenButton.src = 'images/play.png';
         }
     }
     function skip(ev){
@@ -71,6 +81,17 @@ window.addEventListener('load', function () {
         video.volume = (mouseX/barWidth);
         sbar.style.width = (mouseX/barWidth)* 100 + '%';
         video.muted = false ; soundButton.src='images/sound.png'; sbar.style.display = 'block' ;
+    }
+    function fullscreen(){
+        if (video.requestFullscreen){
+                video.requestFullscreen();
+        }else if (video.webkitRequestFullscreen){
+                video.webkitRequestFullscreen();
+        }else if (video.mozRequestFullscreen){
+                video.mozRequestFullscreen();
+        }else if (video.msRequestFullscreen){
+                video.msRequestFullscreen();
+        }
     }
 
 }, false);
