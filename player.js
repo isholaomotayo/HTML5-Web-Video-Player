@@ -8,10 +8,18 @@ window.addEventListener('load', function () {
     playButton = document.getElementById('play-button');
     pbar = document.getElementById('pbar');
     pbarContainer = document.getElementById('pbar-container');
+    timeField = document.getElementById('time-field');
+    soundButton = document.getElementById('sound-button');
+    sbarContainer = document.getElementById('sbar-container');
+    sbar = document.getElementById('sbar');
     video.load();
     video.addEventListener('canplay', function () {
         playButton.addEventListener('click', playOrPause, false);
-        pbarContainer.addEventListener('click', skip, false)
+        pbarContainer.addEventListener('click', skip, false);
+        video.addEventListener('click', playOrPause, false);
+        soundButton.addEventListener('click', muteOrUnmute, false);
+        sbarContainer.addEventListener('click', changeVolume, false);
+        updatePlayer();
     }, false);
 
 
@@ -26,6 +34,7 @@ window.addEventListener('load', function () {
     function updatePlayer() {
         var percentage = (video.currentTime/video.duration)*100;
         pbar.style.width = percentage + '%';
+        timeField.innerHTML = getFormattedTime();
         if(video.ended){
             window.clearInterval(update);
             playButton.src='images/replay.png'
@@ -36,11 +45,34 @@ window.addEventListener('load', function () {
         var mouseX = ev.pageX - pbarContainer.offsetLeft;
         var barWidth =window.getComputedStyle(pbarContainer).getPropertyValue('width');
         barWidth = parseFloat(barWidth.substr(0, barWidth.length - 2));
-
         video.currentTime = (mouseX/barWidth)*video.duration;
         updatePlayer();
+    }
+    function getFormattedTime() {
+        var seconds= Math.round(video.currentTime);
+        var minutes = Math.floor(seconds/60);
+        if (minutes > 0) seconds -= minutes*60;
+        if (seconds.toString().length === 1) seconds = '0'+ seconds;
+        var totalSeconds = Math.round(video.duration);
+        var totalMinutes = Math.floor(totalSeconds/60);
+        if (totalMinutes > 0) totalSeconds -= totalMinutes*60;
+        if (totalSeconds.toString().length === 1) totalSeconds = '0'+ totalSeconds;
+        return minutes +' : ' + seconds + ' / ' + totalMinutes + ':' + totalSeconds
 
     }
+    function muteOrUnmute(){
+        video.muted ?  (video.muted = false , soundButton.src='images/sound.png', sbar.style.display = 'block' ):
+            (video.muted= true, soundButton.src='images/mute.png', sbar.style.display = 'none')
+    }
+    function changeVolume(ev) {
+        var mouseX = ev.pageX - sbarContainer.offsetLeft;
+        var barWidth =window.getComputedStyle(sbarContainer).getPropertyValue('width');
+        barWidth = parseFloat(barWidth.substr(0, barWidth.length - 2));
+        video.volume = (mouseX/barWidth);
+        sbar.style.width = (mouseX/barWidth)* 100 + '%';
+        video.muted = false ; soundButton.src='images/sound.png'; sbar.style.display = 'block' ;
+    }
+
 }, false);
 
 
